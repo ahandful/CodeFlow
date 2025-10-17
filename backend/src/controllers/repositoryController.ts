@@ -29,7 +29,8 @@ export class RepositoryController {
       }
 
       // 验证Git URL格式
-      if (!this.isValidGitUrl(url)) {
+      if (!RepositoryController.isValidGitUrl(url)) {
+        console.log('Invalid Git URL:', url);
         return res.status(400).json({ 
           success: false, 
           error: '无效的Git仓库URL' 
@@ -48,10 +49,11 @@ export class RepositoryController {
       res.status(201).json({ success: true, data: repository });
     } catch (error) {
       console.error('添加仓库失败:', error);
+      console.error('Error details:', error.message);
       if (error.message.includes('UNIQUE constraint failed')) {
         res.status(400).json({ success: false, error: '该仓库URL已存在' });
       } else {
-        res.status(500).json({ success: false, error: '添加仓库失败' });
+        res.status(500).json({ success: false, error: '添加仓库失败', details: error.message });
       }
     }
   }
