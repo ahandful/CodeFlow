@@ -2,6 +2,7 @@ import * as Git from 'nodegit';
 import * as path from 'path';
 import * as fs from 'fs';
 import { promisify } from 'util';
+import { exec } from 'child_process';
 import { ReviewData, CommitInfo, FileChange } from '../models/types';
 
 export class GitService {
@@ -61,30 +62,23 @@ export class GitService {
     }
 
     try {
-      await Git.Clone.clone(repoUrl, localPath, {
-        checkoutBranch: 'main',
-        fetchOpts: {
-          callbacks: {
-            credentials: () => Git.Cred.userpassPlaintextNew('', ''),
-            certificateCheck: () => 1
-          }
-        }
-      });
-    } catch (error) {
-      // 如果main分支不存在，尝试master分支
+      // 使用git命令行克隆仓库
+      const execAsync = promisify(exec);
+      
+      // 尝试克隆main分支
       try {
-        await Git.Clone.clone(repoUrl, localPath, {
-          checkoutBranch: 'master',
-          fetchOpts: {
-            callbacks: {
-              credentials: () => Git.Cred.userpassPlaintextNew('', ''),
-              certificateCheck: () => 1
-            }
-          }
-        });
-      } catch (masterError) {
-        throw new Error(`克隆仓库失败: ${error.message}`);
+        await execAsync(`git clone -b main ${repoUrl} ${localPath}`);
+      } catch (mainError) {
+        // 如果main分支不存在，尝试master分支
+        try {
+          await execAsync(`git clone -b master ${repoUrl} ${localPath}`);
+        } catch (masterError) {
+          // 如果都没有，克隆默认分支
+          await execAsync(`git clone ${repoUrl} ${localPath}`);
+        }
       }
+    } catch (error) {
+      throw new Error(`克隆仓库失败: ${error.message}`);
     }
 
     return localPath;
