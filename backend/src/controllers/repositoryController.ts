@@ -100,7 +100,10 @@ export class RepositoryController {
 
   // 验证Git URL格式
   private static isValidGitUrl(url: string): boolean {
-    const gitUrlPattern = /^(https?:\/\/|git@)[\w\.-]+[\w\.-]+\/[\w\.-]+\.git$/;
-    return gitUrlPattern.test(url);
+    // 支持HTTPS和SSH格式的Git URL
+    const httpsPattern = /^https:\/\/github\.com\/[\w\.-]+\/[\w\.-]+\.git$/;
+    const sshPattern = /^git@github\.com:[\w\.-]+\/[\w\.-]+\.git$/;
+    
+    return httpsPattern.test(url) || sshPattern.test(url);
   }
 }
