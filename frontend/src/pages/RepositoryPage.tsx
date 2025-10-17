@@ -183,7 +183,7 @@ const RepositoryPage: React.FC = () => {
             rules={[
               { required: true, message: '请输入Git仓库URL' },
               { 
-                pattern: /^(https?:\/\/|git@)[\w\.-]+[\w\.-]+\/[\w\.-]+\.git$/, 
+                pattern: /^(https:\/\/github\.com\/[\w\.-]+\/[\w\.-]+\.git|git@github\.com:[\w\.-]+\/[\w\.-]+\.git)$/, 
                 message: '请输入有效的Git仓库URL' 
               }
             ]}
